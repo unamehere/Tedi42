@@ -125,6 +125,7 @@ public:
   void setConfiguration();
 	int16_t irData[64]; //Contains the raw IR data from the sensor
 	void initialize();
+	void initialize(uint8_t SCL, uint8_t SDA);
 	void measure(bool);
 	float getTemperature(uint8_t num);
 	float getAmbient();

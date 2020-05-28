@@ -35,6 +35,16 @@ void MLX90621::initialize() {
   preCalculateConstants();
 }
 
+void MLX90621::initialize(uint8_t SCL, uint8_t SDA) {
+  Wire.begin(SCL, SDA);
+  Wire.setClock(400000L); //Trabajar a 400kHz en vez de 100
+  delay(5);
+  readEEPROM();
+  writeTrimmingValue();
+  setConfiguration();
+  preCalculateConstants();
+}
+
 void MLX90621::measure(bool calculate_temps) {
 	if (checkConfig()) {
 		readEEPROM();
