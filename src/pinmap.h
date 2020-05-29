@@ -5,12 +5,12 @@
 #define PINMAP
 
 //MLX90614
-#define SCL_P 4
-#define SDA_P 16
+#define P_SCL 4
+#define P_SDA 16
 
 //Servo
-#define SERVO_TX_P 15
-#define SERVO_RX_P 2
+#define P_SERVO_TX 15
+#define P_SERVO_RX 2
 
 //Cam
 //todo
