@@ -268,3 +268,8 @@ boolean MLX90621::checkConfig() {
 	bool check = !((readConfig() & 0x0400) >> POR_TEST);
 	return check;
 }
+
+float *MLX90621::getAllTemps()
+{
+	return temperatures;
+}

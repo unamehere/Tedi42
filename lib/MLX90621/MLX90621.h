@@ -84,6 +84,19 @@
 #define RES_17bit   0b10
 #define RES_18bit   0b11
 
+/*
+pixel Count:
+
+y
+0 |0  4  8 12 16 20 24 28 32 36 40 44 48 52 56 60
+1 |1  5  o  o  o  o  o  o  o  o  o  o  o  o  o 61
+2 |2  6  o  o  o  o  o  o  o  o  o  o  o  o  o 62
+3 |3  7  o  o  o  o  o  o  o  o  o  o  o  o  o 63
+---------------------------------------------------
+ x 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 
+
+--> needs to be Flipped by TEDviewer 
+*/
 class MLX90621 {
 private:
 	/* Variables */
@@ -128,6 +141,7 @@ public:
 	void initialize(uint8_t SCL, uint8_t SDA);
 	void measure(bool);
 	float getTemperature(uint8_t num);
+	float* getAllTemps();
 	float getAmbient();
 	float getMinTemp();
 	float getMaxTemp();
