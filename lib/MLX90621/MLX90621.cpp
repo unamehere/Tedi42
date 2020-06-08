@@ -11,6 +11,7 @@
  *      Adapted for adq. speed control, ems calibration etc
  */
 #include "MLX90621.h"
+#include "../../src/pinmap.h"
 
 void MLX90621::setRefreshRate(uint8_t refrate){
   refreshRate = refrate & 0b1111; //Solo considera ultimos 4 bits
@@ -26,7 +27,7 @@ void MLX90621::setEmissivity(float ems){
 }
 
 void MLX90621::initialize() {
-  Wire.begin();
+  Wire.begin(P_SCL,P_SDA);
   Wire.setClock(400000L); //Trabajar a 400kHz en vez de 100
   delay(5);
   readEEPROM();
