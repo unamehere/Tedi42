@@ -4,7 +4,7 @@
 #ifndef PINMAP
 #define PINMAP
 
-//MLX90614
+//MLX90621
 #define P_SCL 4
 #define P_SDA 16
 
