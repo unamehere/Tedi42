@@ -1,6 +1,8 @@
 #ifndef CONSTANTS
 #define CONSTANTS
 
+#define TIMEOUT_T 200
+
 #define T_ROWCOUNT 4
 #define T_COLUMNCOUNT 16
 
@@ -24,6 +26,10 @@
 #define COM_MEASAT_ROT      "MR"
 #define COM_MEASAT_TILT     "MT"
 #define COM_MEASURE         "MM"
+#define COM_STATUS          "ST"
+
+#define COM_ANSWER_OK       "OK"
+#define COM_ANSWER_ERR      "ER"
 
 
 
