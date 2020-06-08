@@ -9,6 +9,19 @@ void setup() {
 
 void loop() {
 
+  while (Serial.available())
+  {
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    String* Command = getCommand();
+     *Command += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      setCommFlag(true);
+    }
+  }
+
   if(getCommFlag())
   {
     setCommFlag(false);
@@ -26,20 +39,4 @@ void loop() {
   */
   
   // put your main code here, to run repeatedly:
-}
-
-void serialEvent()
-{
-  while (Serial.available())
-  {
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    String* Command = getCommand();
-     *Command += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      setCommFlag(true);
-    }
-  }
 }
