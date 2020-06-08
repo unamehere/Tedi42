@@ -21,6 +21,7 @@ bool m_init()
     Command.reserve(COM_MAXLEN);
     Serial.begin(C_COMBAUD);
     retVal = initTemp();
+    retVal = initServo();
     return retVal;
 }
 
@@ -67,14 +68,11 @@ void serialSendTemps()
     Serial.println(";TE");
 }
 
-void m_measure()
-{
-    tempsensor.measure(true);
-}
-
 void handleNewCommand()
 {
-    String Comm = Command.substring(0,1);
+    
+    unsigned long startMil = millis();
+    String Comm = Command.substring(0,2);
     uint16_t value = Command.substring(2).toInt();
     if(Comm == COM_MEASAT_ROT)
     {
@@ -82,10 +80,18 @@ void handleNewCommand()
       {
           if(checkDeg(ID_SERVO_ROT,value))
           {
-            servo.moveJoint(ID_SERVO_ROT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_ROT)-degToInt(value))>C_SERVODIFF);
-            m_measure();
-            serialSendTemps();
+            unsigned int deg = degToInt(value);
+            servo.moveJoint(ID_SERVO_ROT,deg);
+            while(abs(servo.getJointPosition(ID_SERVO_ROT)-deg)>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            if(millis() < startMil + TIMEOUT_T)
+            {
+                uNowPosR = value;
+                tempsensor.measure(true);
+                serialSendTemps();
+            }
+            else
+                Serial.println(COM_ANSWER_ERR);
+            
           }
       }
     }
@@ -96,10 +102,15 @@ void handleNewCommand()
           if(checkDeg(ID_SERVO_TILT,value))
           {
             servo.moveJoint(ID_SERVO_TILT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF);
-            uNowPosT = value;
-            m_measure();
-            serialSendTemps();
+            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            if(millis() < startMil + TIMEOUT_T)
+            {
+                uNowPosT = value;
+                tempsensor.measure(true);
+                serialSendTemps();
+            }
+            else
+                Serial.println(COM_ANSWER_ERR);
           }
       }
     }
@@ -110,8 +121,17 @@ void handleNewCommand()
           if(checkDeg(ID_SERVO_ROT,value))
           {
             servo.moveJoint(ID_SERVO_ROT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_ROT)-degToInt(value))>C_SERVODIFF);
-            uNowPosR = value;
+            while(abs(servo.getJointPosition(ID_SERVO_ROT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            if(millis() < startMil + TIMEOUT_T)
+            {
+                uNowPosR = value;
+                Serial.println(COM_ANSWER_OK);
+            }
+            else
+            {
+                Serial.println(COM_ANSWER_ERR);
+            }
+            
           }
       }
     }
@@ -122,15 +142,33 @@ void handleNewCommand()
           if(checkDeg(ID_SERVO_ROT,value))
           {
             servo.moveJoint(ID_SERVO_ROT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF);
-            uNowPosT = value;
+            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            if(millis() < startMil + TIMEOUT_T)
+            {
+                uNowPosT = value;
+                Serial.println(COM_ANSWER_OK);
+            }
+            else
+            {
+                Serial.println(COM_ANSWER_ERR);
+            }
+            
           }
       } 
     }
     else if(Comm == COM_MEASURE)
     {
-        m_measure();
+        tempsensor.measure(true);
         serialSendTemps();
+    }
+    else if(Comm == COM_STATUS)
+    {
+        Serial.print("Hello ");
+        Serial.println(COM_ANSWER_OK);
+    }
+    else
+    {
+        Serial.println(COM_ANSWER_ERR);
     }
     Command = "";
 }
