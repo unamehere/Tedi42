@@ -1,7 +1,7 @@
 #ifndef CONSTANTS
 #define CONSTANTS
 
-#define TIMEOUT_T 200
+#define TIMEOUT_T 400
 
 #define T_ROWCOUNT 4
 #define T_COLUMNCOUNT 16
@@ -12,13 +12,13 @@
 #define C_SERVOSPEED 512
 #define C_SERVODIFF 3
 
-#define MAXDEG_ROT 200
-#define MINDEG_ROT 10
-#define MAXDEG_TILT 200
-#define MINDEG_TILT 10
+#define MAXDEG_ROT 300
+#define MINDEG_ROT 0
+#define MAXDEG_TILT 300
+#define MINDEG_TILT 0
 
-#define ID_SERVO_ROT 1
-#define ID_SERVO_TILT 2
+#define ID_SERVO_ROT 2
+#define ID_SERVO_TILT 1
 
 #define COM_MAXLEN 6
 #define COM_GOTO_ROT        "GR"
