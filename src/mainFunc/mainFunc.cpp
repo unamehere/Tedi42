@@ -2,6 +2,7 @@
 #include "../pinmap.h"
 #include "../constants.h"
 #include "../lib/XL320/XL320.h"
+#include <SoftwareSerial.h>
 
 //globals
 MLX90621 tempsensor;
@@ -11,6 +12,7 @@ uint16_t uNowPosT;
 
 String Command;
 bool bNewCommandFlag;
+SoftwareSerial mySerial(P_SERVO_TX,P_SERVO_RX);
 
 
 bool m_init()
@@ -39,6 +41,7 @@ bool initServo()
 {
     bool retVal = true;
     Serial2.begin(C_SERVOBAUD, SERIAL_8N1, P_SERVO_RX, P_SERVO_TX);
+    mySerial.begin(C_SERVOBAUD);
     servo.begin(Serial2);
     servo.setJointSpeed(ID_SERVO_ROT, C_SERVOSPEED);
     delay(50);
@@ -83,16 +86,20 @@ void handleNewCommand()
             unsigned int deg = degToInt(value);
             servo.moveJoint(ID_SERVO_ROT,deg);
             while(abs(servo.getJointPosition(ID_SERVO_ROT)-deg)>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
-            if(millis() < startMil + TIMEOUT_T)
-            {
                 uNowPosR = value;
                 tempsensor.measure(true);
                 serialSendTemps();
-            }
-            else
-                Serial.println(COM_ANSWER_ERR);
             
           }
+                    else
+          {
+              Serial.println(COM_ANSWER_ERR);
+          }
+      }
+      else
+      {
+        tempsensor.measure(true);
+        serialSendTemps();
       }
     }
     else if (Comm == COM_MEASAT_TILT)
@@ -103,15 +110,20 @@ void handleNewCommand()
           {
             servo.moveJoint(ID_SERVO_TILT,degToInt(value));
             while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
-            if(millis() < startMil + TIMEOUT_T)
-            {
-                uNowPosT = value;
-                tempsensor.measure(true);
-                serialSendTemps();
-            }
-            else
-                Serial.println(COM_ANSWER_ERR);
+            uNowPosT = value;
+            tempsensor.measure(true);
+            serialSendTemps();
+
           }
+          else
+          {
+              Serial.println(COM_ANSWER_ERR);
+          }
+      }
+      else
+      {
+            tempsensor.measure(true);
+            serialSendTemps();
       }
     }
     else if(Comm == COM_GOTO_ROT)
@@ -131,7 +143,10 @@ void handleNewCommand()
             {
                 Serial.println(COM_ANSWER_ERR);
             }
-            
+          }
+          else
+          {
+              Serial.println(COM_ANSWER_ERR);
           }
       }
     }
@@ -139,9 +154,9 @@ void handleNewCommand()
     {
       if(value!=uNowPosR)
       {
-          if(checkDeg(ID_SERVO_ROT,value))
+          if(checkDeg(ID_SERVO_TILT,value))
           {
-            servo.moveJoint(ID_SERVO_ROT,degToInt(value));
+            servo.moveJoint(ID_SERVO_TILT,degToInt(value));
             while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
             if(millis() < startMil + TIMEOUT_T)
             {
@@ -152,7 +167,10 @@ void handleNewCommand()
             {
                 Serial.println(COM_ANSWER_ERR);
             }
-            
+          }
+        else
+          {
+              Serial.println(COM_ANSWER_ERR);
           }
       } 
     }
