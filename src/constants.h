@@ -1,13 +1,13 @@
 #ifndef CONSTANTS
 #define CONSTANTS
 
-#define TIMEOUT_T 400
+#define TIMEOUT_T 2000
 
 #define T_ROWCOUNT 4
 #define T_COLUMNCOUNT 16
 
 #define C_COMBAUD 115200
-#define C_SERVOBAUD 9600
+#define C_SERVOBAUD 115200
 
 #define C_SERVOSPEED 512
 #define C_SERVODIFF 3
