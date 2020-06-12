@@ -81,17 +81,24 @@ void handleNewCommand()
     {
       if(value!=uNowPosR)
       {
-          if(checkDeg(ID_SERVO_ROT,value))
-          {
+        if(checkDeg(ID_SERVO_ROT,value))
+        {
             unsigned int deg = degToInt(value);
             servo.moveJoint(ID_SERVO_ROT,deg);
             while(abs(servo.getJointPosition(ID_SERVO_ROT)-deg)>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            if(millis() < startMil + TIMEOUT_T)
+            {
                 uNowPosR = value;
                 tempsensor.measure(true);
                 serialSendTemps();
+            }
+            else
+            {
+                Serial.println(COM_ANSWER_ERR);
+            }
             
           }
-                    else
+        else
           {
               Serial.println(COM_ANSWER_ERR);
           }
@@ -110,9 +117,17 @@ void handleNewCommand()
           {
             servo.moveJoint(ID_SERVO_TILT,degToInt(value));
             while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
-            uNowPosT = value;
-            tempsensor.measure(true);
-            serialSendTemps();
+            if(millis() < startMil + TIMEOUT_T)
+            {
+                uNowPosR = value;
+                tempsensor.measure(true);
+                serialSendTemps();
+            }
+            else
+            {
+                Serial.println(COM_ANSWER_ERR);
+            }
+            
 
           }
           else
