@@ -12,7 +12,6 @@ uint16_t uNowPosT;
 
 String Command;
 bool bNewCommandFlag;
-SoftwareSerial mySerial(P_SERVO_TX,P_SERVO_RX);
 
 
 bool m_init()
@@ -41,7 +40,6 @@ bool initServo()
 {
     bool retVal = true;
     Serial2.begin(C_SERVOBAUD, SERIAL_8N1, P_SERVO_RX, P_SERVO_TX);
-    mySerial.begin(C_SERVOBAUD);
     servo.begin(Serial2);
     servo.setJointSpeed(ID_SERVO_ROT, C_SERVOSPEED);
     delay(50);
@@ -79,7 +77,7 @@ void handleNewCommand()
     uint16_t value = Command.substring(2).toInt();
     if(Comm == COM_MEASAT_ROT)
     {
-      if(value!=uNowPosR)
+      if(abs(value - uNowPosT) > C_SERVODIFF)
       {
         if(checkDeg(ID_SERVO_ROT,value))
         {
@@ -111,7 +109,7 @@ void handleNewCommand()
     }
     else if (Comm == COM_MEASAT_TILT)
     {
-      if(value!=uNowPosT)
+      if(abs(value - uNowPosT) > C_SERVODIFF)
       {
           if(checkDeg(ID_SERVO_TILT,value))
           {
@@ -143,7 +141,7 @@ void handleNewCommand()
     }
     else if(Comm == COM_GOTO_ROT)
     {
-      if(value!=uNowPosR)
+      if(abs(value - uNowPosT) > C_SERVODIFF)
       {
           if(checkDeg(ID_SERVO_ROT,value))
           {
@@ -167,7 +165,7 @@ void handleNewCommand()
     }
     else if(Comm == COM_GOTO_TILT)
     {
-      if(value!=uNowPosR)
+      if(abs(value - uNowPosT) > C_SERVODIFF)
       {
           if(checkDeg(ID_SERVO_TILT,value))
           {
