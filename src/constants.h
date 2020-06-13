@@ -7,10 +7,10 @@
 #define T_COLUMNCOUNT 16
 
 #define C_COMBAUD 115200
-#define C_SERVOBAUD 115200
+#define C_SERVOBAUD 9600
 
 #define C_SERVOSPEED 512
-#define C_SERVODIFF 3
+#define C_SERVODIFF 8
 
 #define MAXDEG_ROT 300
 #define MINDEG_ROT 0
