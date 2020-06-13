@@ -77,26 +77,33 @@ void handleNewCommand()
     uint16_t value = Command.substring(2).toInt();
     if(Comm == COM_MEASAT_ROT)
     {
-      if(abs(value - uNowPosT) > C_SERVODIFF)
+      
+      if(abs(value - uNowPosR) > 1)
       {
-        if(checkDeg(ID_SERVO_ROT,value))
-        {
-            unsigned int deg = degToInt(value);
-            servo.moveJoint(ID_SERVO_ROT,deg);
-            while(abs(servo.getJointPosition(ID_SERVO_ROT)-deg)>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+          if(checkDeg(ID_SERVO_ROT,value))
+          {
+            servo.moveJoint(ID_SERVO_ROT,degToInt(value));
+            int val = degToInt(value);
+            int pos = servo.getJointPosition(ID_SERVO_ROT);
+            int diff = abs(pos-degToInt(value));
+            while(diff>C_SERVODIFF && millis() < startMil + TIMEOUT_T)
+            {
+                pos = servo.getJointPosition(ID_SERVO_ROT);
+                diff = abs(pos-degToInt(value));
+                delay(5);
+            }
             if(millis() < startMil + TIMEOUT_T)
             {
                 uNowPosR = value;
                 tempsensor.measure(true);
-                serialSendTemps();
+                serialSendTemps();;
             }
             else
             {
                 Serial.println(COM_ANSWER_ERR);
             }
-            
           }
-        else
+          else
           {
               Serial.println(COM_ANSWER_ERR);
           }
@@ -109,12 +116,15 @@ void handleNewCommand()
     }
     else if (Comm == COM_MEASAT_TILT)
     {
-      if(abs(value - uNowPosT) > C_SERVODIFF)
+      if(abs(value - uNowPosT) > 1)
       {
           if(checkDeg(ID_SERVO_TILT,value))
           {
             servo.moveJoint(ID_SERVO_TILT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T)
+            {
+                delay(5);
+            }
             if(millis() < startMil + TIMEOUT_T)
             {
                 uNowPosR = value;
@@ -141,12 +151,20 @@ void handleNewCommand()
     }
     else if(Comm == COM_GOTO_ROT)
     {
-      if(abs(value - uNowPosT) > C_SERVODIFF)
+      if(abs(value - uNowPosR) > 1)
       {
           if(checkDeg(ID_SERVO_ROT,value))
           {
             servo.moveJoint(ID_SERVO_ROT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_ROT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            int val = degToInt(value);
+            int pos = servo.getJointPosition(ID_SERVO_ROT);
+            int diff = abs(pos-degToInt(value));
+            while(diff>C_SERVODIFF && millis() < startMil + TIMEOUT_T)
+            {
+                pos = servo.getJointPosition(ID_SERVO_ROT);
+                diff = abs(pos-degToInt(value));
+                delay(5);
+            }
             if(millis() < startMil + TIMEOUT_T)
             {
                 uNowPosR = value;
@@ -165,12 +183,15 @@ void handleNewCommand()
     }
     else if(Comm == COM_GOTO_TILT)
     {
-      if(abs(value - uNowPosT) > C_SERVODIFF)
+      if(abs(value - uNowPosT) > 1)
       {
           if(checkDeg(ID_SERVO_TILT,value))
           {
             servo.moveJoint(ID_SERVO_TILT,degToInt(value));
-            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T);
+            while(abs(servo.getJointPosition(ID_SERVO_TILT)-degToInt(value))>C_SERVODIFF && millis() < startMil + TIMEOUT_T)
+            {
+                delay(5);
+            }
             if(millis() < startMil + TIMEOUT_T)
             {
                 uNowPosT = value;
