@@ -3,5 +3,6 @@
         "cmath": "cpp",
         "complex": "cpp",
         "cstdlib": "cpp"
-    }
+    },
+    "python.pythonPath": "C:\\Users\\ilove\\.platformio\\penv\\python.exe"
 }
