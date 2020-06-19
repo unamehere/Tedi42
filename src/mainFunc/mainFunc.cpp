@@ -180,6 +180,10 @@ void handleNewCommand()
               Serial.println(COM_ANSWER_ERR);
           }
       }
+      else
+      {
+          Serial.println(COM_ANSWER_OK);
+      }
     }
     else if(Comm == COM_GOTO_TILT)
     {
@@ -206,7 +210,12 @@ void handleNewCommand()
           {
               Serial.println(COM_ANSWER_ERR);
           }
-      } 
+      }
+      else
+      {
+          Serial.println(COM_ANSWER_OK);
+      }
+       
     }
     else if(Comm == COM_MEASURE)
     {
