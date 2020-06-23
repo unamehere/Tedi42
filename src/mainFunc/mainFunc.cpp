@@ -3,6 +3,7 @@
 #include "../constants.h"
 #include "../lib/XL320/XL320.h"
 #include <SoftwareSerial.h>
+#include "mainFunc_private.h"
 
 //globals
 MLX90621 tempsensor;
@@ -10,7 +11,10 @@ XL320 servo;
 uint16_t uNowPosR;
 uint16_t uNowPosT;
 
-String Command;
+WebSocketsServer webSocket = WebSocketsServer(81);
+
+bool webSocketConnectedFlag = false;
+
 bool bNewCommandFlag;
 
 
@@ -18,8 +22,6 @@ bool m_init()
 {
     bool retVal = true;
     bNewCommandFlag = false;
-    Command = "";
-    Command.reserve(COM_MAXLEN);
     Serial.begin(C_COMBAUD);
     retVal = initTemp();
     retVal = initServo();
@@ -53,6 +55,12 @@ bool initServo()
     return retVal;
 }
 
+bool initWebSocket()
+{
+    webSocket.begin();
+    webSocket.onEvent(webSocketEvent);
+}
+
 void serialSendTemps()
 {
     float* temps = tempsensor.getAllTemps();
@@ -69,9 +77,27 @@ void serialSendTemps()
     Serial.println(";TE");
 }
 
-void handleNewCommand()
+String stringTemps()
 {
-    
+    String resp;
+    float* temps = tempsensor.getAllTemps();
+    resp += "TS;";
+    for(int y = 0; y < T_ROWCOUNT; y++)
+    {
+        for(int x = 0; x <T_COLUMNCOUNT; x++)
+        {
+            resp+= temps[y+x*4];
+            if (x<15) resp+=",";
+        }
+        if(y<3) resp+=";";
+    }
+    resp+=";TE";
+    return resp;
+}
+
+String handleNewCommand(String Command)
+{
+    String resp = COM_ANSWER_ERR;
     unsigned long startMil = millis();
     String Comm = Command.substring(0,2);
     uint16_t value = Command.substring(2).toInt();
@@ -96,7 +122,15 @@ void handleNewCommand()
             {
                 uNowPosR = value;
                 tempsensor.measure(true);
-                serialSendTemps();;
+                if(webSocketConnectedFlag == true)
+                {
+                    resp = stringTemps();
+                }
+                else
+                {
+                    serialSendTemps();
+                }
+                
             }
             else
             {
@@ -111,7 +145,14 @@ void handleNewCommand()
       else
       {
         tempsensor.measure(true);
-        serialSendTemps();
+        if(webSocketConnectedFlag == true)
+        {
+            resp = stringTemps();
+        }
+        else
+        {
+            serialSendTemps();
+        }
       }
     }
     else if (Comm == COM_MEASAT_TILT)
@@ -128,15 +169,19 @@ void handleNewCommand()
             if(millis() < startMil + TIMEOUT_T)
             {
                 uNowPosR = value;
-                tempsensor.measure(true);
-                serialSendTemps();
+                if(webSocketConnectedFlag == true)
+                {
+                    resp = stringTemps();
+                }
+                else
+                {
+                    serialSendTemps();
+                }
             }
             else
             {
                 Serial.println(COM_ANSWER_ERR);
             }
-            
-
           }
           else
           {
@@ -169,6 +214,7 @@ void handleNewCommand()
             {
                 uNowPosR = value;
                 Serial.println(COM_ANSWER_OK);
+                resp = COM_ANSWER_OK;
             }
             else
             {
@@ -183,6 +229,7 @@ void handleNewCommand()
       else
       {
           Serial.println(COM_ANSWER_OK);
+          resp = COM_ANSWER_OK;
       }
     }
     else if(Comm == COM_GOTO_TILT)
@@ -200,6 +247,7 @@ void handleNewCommand()
             {
                 uNowPosT = value;
                 Serial.println(COM_ANSWER_OK);
+                resp = COM_ANSWER_OK;
             }
             else
             {
@@ -214,13 +262,21 @@ void handleNewCommand()
       else
       {
           Serial.println(COM_ANSWER_OK);
+          resp = COM_ANSWER_OK;
       }
        
     }
     else if(Comm == COM_MEASURE)
     {
         tempsensor.measure(true);
-        serialSendTemps();
+        if(webSocketConnectedFlag == true)
+        {
+            resp = stringTemps();
+        }
+        else
+        {
+            serialSendTemps();
+        }
     }
     else if(Comm == COM_STATUS)
     {
@@ -231,7 +287,7 @@ void handleNewCommand()
     {
         Serial.println(COM_ANSWER_ERR);
     }
-    Command = "";
+    return resp;
 }
 
 uint16_t degToInt(uint16_t &deg)
@@ -268,7 +324,45 @@ void setCommFlag(bool flag)
     bNewCommandFlag = flag;
 }
 
-String* getCommand()
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 {
-    return &Command;
+    String com;
+    if(length>0)
+    {
+        com = (char*)payload;
+    }
+    String resp;
+    switch(type) {
+        case WStype_DISCONNECTED:
+            webSocketConnectedFlag = false;
+            break;
+        case WStype_CONNECTED:
+            {
+                webSocketConnectedFlag = true;
+				
+				// send message to client
+				webSocket.sendTXT(num, "Connected");
+            }
+            break;
+        case WStype_TEXT:
+            resp = handleNewCommand(com);
+
+            // send message to client
+             webSocket.sendTXT(num, resp);
+
+            // send data to all connected clients
+            // webSocket.broadcastTXT("message here");
+            break;
+        case WStype_BIN:
+
+            // send message to client
+            // webSocket.sendBIN(num, payload, length);
+            break;
+    }
+}
+
+void webSocketLoop()
+{
+    webSocket.loop();
 }
