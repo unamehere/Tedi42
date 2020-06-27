@@ -5,6 +5,7 @@
 #include <SoftwareSerial.h>
 #include "mainFunc_private.h"
 
+
 //globals
 MLX90621 tempsensor;
 XL320 servo;
@@ -12,6 +13,8 @@ uint16_t uNowPosR;
 uint16_t uNowPosT;
 
 WebSocketsServer webSocket = WebSocketsServer(81);
+
+WiFiServer server(80);
 
 bool webSocketConnectedFlag = false;
 
@@ -25,6 +28,7 @@ bool m_init()
     Serial.begin(C_COMBAUD);
     retVal = initTemp();
     retVal = initServo();
+    retVal = initWebSocket();
     return retVal;
 }
 
@@ -57,9 +61,20 @@ bool initServo()
 
 bool initWebSocket()
 {
+    bool retVal = true;
+    WiFi.softAP("TED", "1234567890");
+    IPAddress IP = WiFi.softAPIP();
+    Serial.print(COM_SOCKET_IP);
+    Serial.print(";");
+    Serial.print(IP);
+    Serial.print(";");
+    Serial.println(COM_SOCKET_IP);
+    server.begin();
     webSocket.begin();
     webSocket.onEvent(webSocketEvent);
+    return retVal;
 }
+
 
 void serialSendTemps()
 {
@@ -342,7 +357,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 webSocketConnectedFlag = true;
 				
 				// send message to client
-				webSocket.sendTXT(num, "Connected");
+				Serial.println(COM_SOCKET_CONNECT);
             }
             break;
         case WStype_TEXT:
@@ -365,4 +380,9 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 void webSocketLoop()
 {
     webSocket.loop();
+}
+
+WiFiServer* getServer()
+{
+    return &server;
 }
