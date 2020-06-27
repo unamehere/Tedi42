@@ -31,6 +31,9 @@
 #define COM_ANSWER_OK       "OK"
 #define COM_ANSWER_ERR      "ER"
 
+#define COM_SOCKET_CONNECT  "SC"
+#define COM_SOCKET_IP       "SI"
+
 
 
 #endif

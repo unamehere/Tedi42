@@ -7,14 +7,14 @@ void setup() {
   // put your setup code here, to run once:
 }
 
-void loop() {
-
+void loop()
+ {
+  String Command = "";
   while (Serial.available())
   {
     char inChar = (char)Serial.read();
     // add it to the inputString:
-    String* Command = getCommand();
-     *Command += inChar;
+     Command += inChar;
     // if the incoming character is a newline, set a flag so the main loop can
     // do something about it:
     if (inChar == '\n') {
@@ -22,11 +22,36 @@ void loop() {
     }
   }
 
+  WiFiServer* socket = getServer();
+  WiFiClient client = socket->available();
+  if(client)
+  {
+    Command = "";
+    while(client.connected())
+    {
+      if(client.available())
+      {
+        char c = client.read();            
+        Command += c;
+        if(c == '\n')
+        {
+          String resp = handleNewCommand(Command);
+          client.write(resp.c_str());
+          client.write('\r\n');
+          Command = "";
+        }
+      }
+    }
+    client.stop();
+  }
+
   if(getCommFlag())
   {
     setCommFlag(false);
-    handleNewCommand();
+    handleNewCommand(Command);
   }
+
+  webSocketLoop();
 
   /*  
   long t1 = millis();
