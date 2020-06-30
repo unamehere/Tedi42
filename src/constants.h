@@ -10,7 +10,7 @@
 #define C_SERVOBAUD 9600
 
 #define C_SERVOSPEED 512
-#define C_SERVODIFF 8
+#define C_SERVODIFF 10
 
 #define MAXDEG_ROT 300
 #define MINDEG_ROT 0

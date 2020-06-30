@@ -133,7 +133,7 @@ String handleNewCommand(String Command)
                 diff = abs(pos-degToInt(value));
                 delay(5);
             }
-            if(millis() < startMil + TIMEOUT_T)
+            if(millis() < startMil + TIMEOUT_T+1000)
             {
                 uNowPosR = value;
                 tempsensor.measure(true);
@@ -181,7 +181,7 @@ String handleNewCommand(String Command)
             {
                 delay(5);
             }
-            if(millis() < startMil + TIMEOUT_T)
+            if(millis() < startMil + TIMEOUT_T +1000)
             {
                 uNowPosR = value;
                 if(webSocketConnectedFlag == true)
@@ -225,7 +225,7 @@ String handleNewCommand(String Command)
                 diff = abs(pos-degToInt(value));
                 delay(5);
             }
-            if(millis() < startMil + TIMEOUT_T)
+            if(millis() < startMil + TIMEOUT_T+1000)
             {
                 uNowPosR = value;
                 Serial.println(COM_ANSWER_OK);
@@ -258,7 +258,7 @@ String handleNewCommand(String Command)
             {
                 delay(5);
             }
-            if(millis() < startMil + TIMEOUT_T)
+            if(millis() < startMil + TIMEOUT_T+1000)
             {
                 uNowPosT = value;
                 Serial.println(COM_ANSWER_OK);
