@@ -12,8 +12,6 @@ XL320 servo;
 uint16_t uNowPosR;
 uint16_t uNowPosT;
 
-WebSocketsServer webSocket = WebSocketsServer(81);
-
 WiFiServer server(80);
 
 bool webSocketConnectedFlag = false;
@@ -70,8 +68,6 @@ bool initWebSocket()
     Serial.print(";");
     Serial.println(COM_SOCKET_IP);
     server.begin();
-    webSocket.begin();
-    webSocket.onEvent(webSocketEvent);
     return retVal;
 }
 
@@ -85,9 +81,9 @@ void serialSendTemps()
         for(int x = 0; x <T_COLUMNCOUNT; x++)
         {
             Serial.print(temps[y+x*4]);
-            if (x<15) Serial.print(",");
+            if (x<T_COLUMNCOUNT-1) Serial.print(",");
         }
-        if(y<3) Serial.print(";");
+        if(y<T_ROWCOUNT-1) Serial.print(";");
     }
     Serial.println(";TE");
 }
@@ -339,47 +335,9 @@ void setCommFlag(bool flag)
     bNewCommandFlag = flag;
 }
 
-
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
+void setWebSocketConnectedFlag( bool state)
 {
-    String com;
-    if(length>0)
-    {
-        com = (char*)payload;
-    }
-    String resp;
-    switch(type) {
-        case WStype_DISCONNECTED:
-            webSocketConnectedFlag = false;
-            break;
-        case WStype_CONNECTED:
-            {
-                webSocketConnectedFlag = true;
-				
-				// send message to client
-				Serial.println(COM_SOCKET_CONNECT);
-            }
-            break;
-        case WStype_TEXT:
-            resp = handleNewCommand(com);
-
-            // send message to client
-             webSocket.sendTXT(num, resp);
-
-            // send data to all connected clients
-            // webSocket.broadcastTXT("message here");
-            break;
-        case WStype_BIN:
-
-            // send message to client
-            // webSocket.sendBIN(num, payload, length);
-            break;
-    }
-}
-
-void webSocketLoop()
-{
-    webSocket.loop();
+    webSocketConnectedFlag = state;
 }
 
 WiFiServer* getServer()
