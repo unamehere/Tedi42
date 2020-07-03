@@ -14,8 +14,8 @@
 
 #define MAXDEG_ROT 300
 #define MINDEG_ROT 0
-#define MAXDEG_TILT 300
-#define MINDEG_TILT 0
+#define MAXDEG_TILT 290
+#define MINDEG_TILT 155
 
 #define ID_SERVO_ROT 2
 #define ID_SERVO_TILT 1
