@@ -21,7 +21,5 @@ WiFiServer* getServer();
 
 bool getCommFlag();
 void setCommFlag(bool flag);
-
-void webSocketLoop();
-
+void setWebSocketConnectedFlag( bool state);
 #endif
