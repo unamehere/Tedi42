@@ -31,17 +31,18 @@ void loop()
     {
       if(client.available())
       {
+        setWebSocketConnectedFlag(true);
         char c = client.read();            
         Command += c;
         if(c == '\n')
         {
           String resp = handleNewCommand(Command);
           client.write(resp.c_str());
-          client.write('\r\n');
           Command = "";
         }
       }
     }
+    setWebSocketConnectedFlag(false);
     client.stop();
   }
 
@@ -50,18 +51,5 @@ void loop()
     setCommFlag(false);
     handleNewCommand(Command);
   }
-
-  webSocketLoop();
-
-  /*  
-  long t1 = millis();
-  m_measure();
-  serialSendTemps();
-  int diff = millis()-t1;
-  Serial.print("Duration: ");
-  Serial.println(diff);
-  delay(1000);
-  */
-  
   // put your main code here, to run repeatedly:
 }
