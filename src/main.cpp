@@ -9,6 +9,7 @@ void setup() {
 
 void loop()
  {
+  wifiServerLoop;
   String Command = "";
   while (Serial.available())
   {
@@ -49,7 +50,7 @@ void loop()
   if(getCommFlag())
   {
     setCommFlag(false);
-    handleNewCommand(Command);
+    Serial.println(handleNewCommand(Command));
   }
   // put your main code here, to run repeatedly:
 }
