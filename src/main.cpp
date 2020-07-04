@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "mainFunc/mainFunc.h"
 #include "constants.h"
+#include <WiFiClientSecure.h>
 
 void setup() {
   m_init();
@@ -9,7 +10,7 @@ void setup() {
 
 void loop()
  {
-  wifiServerLoop;
+  wifiServerLoop();
   String Command = "";
   while (Serial.available())
   {
@@ -35,11 +36,12 @@ void loop()
         setWebSocketConnectedFlag(true);
         char c = client.read();            
         Command += c;
-        if(c == '\n')
+        if(c == '\n' && Command.length() > 1)
         {
           String resp = handleNewCommand(Command);
-          client.write(resp.c_str());
+          client.print(resp.c_str());
           Command = "";
+          delay(10);
         }
       }
     }
@@ -50,7 +52,7 @@ void loop()
   if(getCommFlag())
   {
     setCommFlag(false);
-    Serial.println(handleNewCommand(Command));
+    Serial.print(handleNewCommand(Command));
   }
   // put your main code here, to run repeatedly:
 }
