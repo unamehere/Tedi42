@@ -4,15 +4,17 @@
 #include "../lib/XL320/XL320.h"
 #include <SoftwareSerial.h>
 #include "mainFunc_private.h"
+#include "../lib/WiFiManager/WiFiManager.h"
 
 
 //globals
 MLX90621 tempsensor;
 XL320 servo;
+WiFiManager wm;
 uint16_t uNowPosR;
 uint16_t uNowPosT;
 
-WiFiServer server(80);
+WiFiServer server(86);
 
 bool webSocketConnectedFlag = false;
 
@@ -53,20 +55,16 @@ bool initServo()
     delay(50);
     uNowPosT = servo.getJointPosition(ID_SERVO_TILT);
     delay(50);
-    //toDo
     return retVal;
 }
 
 bool initWebSocket()
 {
     bool retVal = true;
-    WiFi.softAP("TED", "1234567890");
+    WiFi.mode(WIFI_STA);
+    wm.setConfigPortalBlocking(false);
+    wm.autoConnect("TED","1234567890");
     IPAddress IP = WiFi.softAPIP();
-    Serial.print(COM_SOCKET_IP);
-    Serial.print(";");
-    Serial.print(IP);
-    Serial.print(";");
-    Serial.println(COM_SOCKET_IP);
     server.begin();
     return retVal;
 }
@@ -129,41 +127,20 @@ String handleNewCommand(String Command)
                 diff = abs(pos-degToInt(value));
                 delay(5);
             }
-            if(millis() < startMil + TIMEOUT_T+1000)
+            if(millis() < startMil + TIMEOUT_T+500)
             {
                 uNowPosR = value;
                 tempsensor.measure(true);
-                if(webSocketConnectedFlag == true)
-                {
-                    resp = stringTemps();
-                }
-                else
-                {
-                    serialSendTemps();
-                }
-                
+                resp = stringTemps();  
             }
-            else
-            {
-                Serial.println(COM_ANSWER_ERR);
-            }
-          }
-          else
-          {
-              Serial.println(COM_ANSWER_ERR);
+
           }
       }
       else
       {
         tempsensor.measure(true);
-        if(webSocketConnectedFlag == true)
-        {
-            resp = stringTemps();
-        }
-        else
-        {
-            serialSendTemps();
-        }
+        resp = stringTemps();
+
       }
     }
     else if (Comm == COM_MEASAT_TILT)
@@ -177,32 +154,18 @@ String handleNewCommand(String Command)
             {
                 delay(5);
             }
-            if(millis() < startMil + TIMEOUT_T +1000)
+            if(millis() < startMil + TIMEOUT_T +500)
             {
                 uNowPosR = value;
-                if(webSocketConnectedFlag == true)
-                {
-                    resp = stringTemps();
-                }
-                else
-                {
-                    serialSendTemps();
-                }
+                tempsensor.measure(true);
+                resp = stringTemps();
             }
-            else
-            {
-                Serial.println(COM_ANSWER_ERR);
-            }
-          }
-          else
-          {
-              Serial.println(COM_ANSWER_ERR);
           }
       }
       else
       {
             tempsensor.measure(true);
-            serialSendTemps();
+            resp = stringTemps();
       }
     }
     else if(Comm == COM_GOTO_ROT)
@@ -224,22 +187,12 @@ String handleNewCommand(String Command)
             if(millis() < startMil + TIMEOUT_T+1000)
             {
                 uNowPosR = value;
-                Serial.println(COM_ANSWER_OK);
                 resp = COM_ANSWER_OK;
             }
-            else
-            {
-                Serial.println(COM_ANSWER_ERR);
-            }
-          }
-          else
-          {
-              Serial.println(COM_ANSWER_ERR);
           }
       }
       else
       {
-          Serial.println(COM_ANSWER_OK);
           resp = COM_ANSWER_OK;
       }
     }
@@ -257,22 +210,12 @@ String handleNewCommand(String Command)
             if(millis() < startMil + TIMEOUT_T+1000)
             {
                 uNowPosT = value;
-                Serial.println(COM_ANSWER_OK);
                 resp = COM_ANSWER_OK;
             }
-            else
-            {
-                Serial.println(COM_ANSWER_ERR);
-            }
-          }
-        else
-          {
-              Serial.println(COM_ANSWER_ERR);
           }
       }
       else
       {
-          Serial.println(COM_ANSWER_OK);
           resp = COM_ANSWER_OK;
       }
        
@@ -280,30 +223,23 @@ String handleNewCommand(String Command)
     else if(Comm == COM_MEASURE)
     {
         tempsensor.measure(true);
-        if(webSocketConnectedFlag == true)
-        {
-            resp = stringTemps();
-        }
-        else
-        {
-            serialSendTemps();
-        }
+        resp = stringTemps();
+
     }
     else if(Comm == COM_STATUS)
     {
-        Serial.print("Hello ");
-        Serial.println(COM_ANSWER_OK);
+        resp = "OK";
     }
     else
     {
-        Serial.println(COM_ANSWER_ERR);
+        resp = COM_ANSWER_ERR;
     }
     return resp;
 }
 
 uint16_t degToInt(uint16_t &deg)
 {
-    return (int) deg/300.*1024.;
+    return (int) deg/300.*1023.;
 }
 
 bool checkDeg(uint8_t ID, uint16_t const &deg)
@@ -343,4 +279,9 @@ void setWebSocketConnectedFlag( bool state)
 WiFiServer* getServer()
 {
     return &server;
+}
+
+void wifiServerLoop()
+{
+    wm.process();
 }

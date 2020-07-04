@@ -19,6 +19,7 @@ uint16_t degToInt(uint16_t &deg);
 
 WiFiServer* getServer();
 
+void wifiServerLoop();
 bool getCommFlag();
 void setCommFlag(bool flag);
 void setWebSocketConnectedFlag( bool state);
