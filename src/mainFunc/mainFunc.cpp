@@ -2,7 +2,6 @@
 #include "../pinmap.h"
 #include "../constants.h"
 #include "../lib/XL320/XL320.h"
-#include <SoftwareSerial.h>
 #include "mainFunc_private.h"
 #include "../lib/WiFiManager/WiFiManager.h"
 
@@ -14,7 +13,7 @@ WiFiManager wm;
 uint16_t uNowPosR;
 uint16_t uNowPosT;
 
-WiFiServer server(86);
+WiFiServer server(SOCKET_PORT);
 
 bool webSocketConnectedFlag = false;
 
@@ -62,6 +61,7 @@ bool initWebSocket()
 {
     bool retVal = true;
     WiFi.mode(WIFI_STA);
+    wm.setHostname("TED");
     wm.setConfigPortalBlocking(false);
     wm.autoConnect("TED","1234567890");
     IPAddress IP = WiFi.softAPIP();
@@ -234,6 +234,7 @@ String handleNewCommand(String Command)
     {
         resp = COM_ANSWER_ERR;
     }
+    resp+="\n";
     return resp;
 }
 
