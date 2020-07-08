@@ -20,7 +20,7 @@
 #define ID_SERVO_ROT 2
 #define ID_SERVO_TILT 1
 
-#define SOCKET_PORT 86
+#define SOCKET_PORT 8081
 
 #define COM_MAXLEN 6
 #define COM_GOTO_ROT        "GR"

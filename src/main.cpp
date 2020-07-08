@@ -28,19 +28,19 @@ void loop()
   WiFiClient client = socket->available();
   if(client)
   {
-    Command = "";
     while(client.connected())
     {
       if(client.available())
       {
         setWebSocketConnectedFlag(true);
-        char c = client.read();            
-        Command += c;
-        if(c == '\n' && Command.length() > 1)
+        char c[6];
+        char* cmd = c;
+        int len =  client.read(cmd, 6);          
+        if(len > 2) // shortest command: MM\n
         {
-          String resp = handleNewCommand(Command);
+          String resp = handleNewCommand(c);
           client.print(resp.c_str());
-          Command = "";
+          client.flush();
           delay(10);
         }
       }
