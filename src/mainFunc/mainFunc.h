@@ -5,12 +5,14 @@
 #include "../MLX90621/MLX90621.h"
 #include <Arduino.h>
 #include <WiFi.h>
+#include <ArduinoOTA.h>
 
 // Main Functions
 bool m_init();
 bool initTemp();
 bool initServo();
 bool initWebSocket();
+void initOTA();
 void serialSendTemps();
 String stringTemps();
 String handleNewCommand(String Command);
