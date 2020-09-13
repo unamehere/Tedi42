@@ -11,6 +11,7 @@ void setup() {
 void loop()
  {
   wifiServerLoop();
+  ArduinoOTA.handle();
   String Command = "";
   while (Serial.available())
   {
@@ -33,12 +34,13 @@ void loop()
       if(client.available())
       {
         setWebSocketConnectedFlag(true);
-        char c[6];
-        char* cmd = c;
+        unsigned char c[6];
+        unsigned char* cmd = c;
         int len =  client.read(cmd, 6);          
         if(len > 2) // shortest command: MM\n
         {
-          String resp = handleNewCommand(c);
+          const char* ccmd = (char*)cmd;
+          String resp = handleNewCommand(ccmd);
           client.print(resp.c_str());
           client.flush();
           delay(10);
